@@ -1,20 +1,64 @@
-import React from 'react'
+// Import React, useState, useEffect, and connect from react-redux
+import React, { useState, useEffect } from 'react';
+import { connect } from 'react-redux';
 
-export default function Wheel(props) {
+// Import the action creators
+import { moveClockwise, moveCounterClockwise } from '../state/action-creators';
+
+function Wheel({ moveClockwise, moveCounterClockwise }) {
+  const totalCogs = 6;
+  const [activeCog, setActiveCog] = useState(() => {
+    // Load the active cog position from local storage if available
+    const savedActiveCog = localStorage.getItem('activeCog');
+    return savedActiveCog !== null ? parseInt(savedActiveCog, 10) : 0;
+  });
+
+  useEffect(() => {
+    // Save the active cog position to local storage whenever it changes
+    localStorage.setItem('activeCog', activeCog);
+  }, [activeCog]);
+
+  // Dispatch plain object actions
+  const handleMoveCounterClockwise = () => {
+    moveCounterClockwise(); // Dispatching action
+    setActiveCog((prevActiveCog) => (prevActiveCog - 1 + totalCogs) % totalCogs);
+  };
+
+  const handleMoveClockwise = () => {
+    moveClockwise(); // Dispatching action
+    setActiveCog((prevActiveCog) => (prevActiveCog + 1) % totalCogs);
+  };
+
   return (
     <div id="wrapper">
       <div id="wheel">
-        <div className="cog active" style={{ "--i": 0 }}>B</div>
-        <div className="cog" style={{ "--i": 1 }}></div>
-        <div className="cog" style={{ "--i": 2 }}></div>
-        <div className="cog" style={{ "--i": 3 }}></div>
-        <div className="cog" style={{ "--i": 4 }}></div>
-        <div className="cog" style={{ "--i": 5 }}></div>{/* --i is a custom CSS property, no need to touch that nor the style object */}
+        {[...Array(totalCogs)].map((_, i) => (
+          <div
+            key={i}
+            className={`cog ${i === activeCog ? 'active' : ''}`}
+            style={{ "--i": i }}
+          >
+            {i === activeCog ? 'B' : ''}
+          </div>
+        ))}
       </div>
       <div id="keypad">
-        <button id="counterClockwiseBtn" >Counter clockwise</button>
-        <button id="clockwiseBtn">Clockwise</button>
+        <button id="counterClockwiseBtn" onClick={handleMoveCounterClockwise}>
+          Counter clockwise
+        </button>
+        <button id="clockwiseBtn" onClick={handleMoveClockwise}>
+          Clockwise
+        </button>
       </div>
     </div>
-  )
+  );
 }
+
+// Map Redux actions to props
+const mapDispatchToProps = {
+  moveClockwise,
+  moveCounterClockwise,
+};
+
+// Connect Wheel component to Redux
+export default connect(null, mapDispatchToProps)(Wheel);
