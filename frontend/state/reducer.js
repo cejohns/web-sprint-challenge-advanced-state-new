@@ -29,7 +29,7 @@ function quiz(state = initialQuizState, action) {
 const initialSelectedAnswerState = null;
 
 function selectedAnswer(state = initialSelectedAnswerState, action) {
-  switch (action.type) {
+  switch (action.type) { 
     case 'SET_SELECTED_ANSWER':
       // Update the state with the new selected answer
       // Make sure action.payload is defined and contains the new answer

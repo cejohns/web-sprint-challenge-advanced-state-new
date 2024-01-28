@@ -67,20 +67,23 @@ export function fetchQuiz() { console.log("fetchQuiz");
 
 
 
-export const postAnswer = (quizId, answerId) => async (dispatch) => {
-  const payload = { quiz_id: quizId, answer_id: answerId };
+export const postAnswer = (quiz_id, answerId) => async (dispatch) => {
+  const payload = { quiz_id: quiz_id, answer_id: answerId };
   try {
     const response = await fetch('http://localhost:9000/api/quiz/answer', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
-    });
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
-    }
-    const data = await response.json();
-    dispatch(setMessage(data.message));
-    fetchQuiz()(dispatch);
+      
+    });console.log('Sending payload:', payload);
+
+   const responseBody = await response.json();
+if (!response.ok) {
+  throw new Error(responseBody.message || 'Network response was not ok');
+}
+dispatch(setMessage(responseBody.message));
+fetchQuiz()(dispatch);
+
   } catch (error) {
     console.error('Post error:', error);
     dispatch(setMessage('Error posting answer'));
