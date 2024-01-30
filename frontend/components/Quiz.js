@@ -24,8 +24,9 @@ export default function Quiz() {
   const handleSubmit = () => {
     // Dispatch action to post the selected answer and fetch the next quiz
     if (quiz && selectedAnswer) {
-      dispatch(postAnswer(quiz.id, selectedAnswer));
-      console.log(quiz.id);
+      dispatch(postAnswer(quiz.quiz_id, selectedAnswer));
+      console.log(selectedAnswer); 
+      console.log(quiz.quiz_id);
 
     }
 

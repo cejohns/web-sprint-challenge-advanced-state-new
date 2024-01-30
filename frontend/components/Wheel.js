@@ -1,56 +1,56 @@
 // Import React, useState, useEffect, and connect from react-redux
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 
 // Import the action creators
 import { moveClockwise, moveCounterClockwise } from '../state/action-creators';
 
-function Wheel({ moveClockwise, moveCounterClockwise }) {
-  const totalCogs = 6;
-  const [activeCog, setActiveCog] = useState(() => {
-    // Load the active cog position from local storage if available
-    const savedActiveCog = localStorage.getItem('activeCog');
-    return savedActiveCog !== null ? parseInt(savedActiveCog, 10) : 0;
-  });
+function Wheel(props) {
+   const {
+    wheel,
+    moveClockwise,
+    moveCounterClockwise,
+  } = props
+ 
 
-  useEffect(() => {
-    // Save the active cog position to local storage whenever it changes
-    localStorage.setItem('activeCog', activeCog);
-  }, [activeCog]);
+
 
   // Dispatch plain object actions
   const handleMoveCounterClockwise = () => {
     moveCounterClockwise(); // Dispatching action
-    setActiveCog((prevActiveCog) => (prevActiveCog - 1 + totalCogs) % totalCogs);
+   
   };
 
   const handleMoveClockwise = () => {
     moveClockwise(); // Dispatching action
-    setActiveCog((prevActiveCog) => (prevActiveCog + 1) % totalCogs);
+    
   };
 
   return (
     <div id="wrapper">
-      <div id="wheel">
-        {[...Array(totalCogs)].map((_, i) => (
-          <div
-            key={i}
-            className={`cog ${i === activeCog ? 'active' : ''}`}
-            style={{ "--i": i }}
-          >
-            {i === activeCog ? 'B' : ''}
-          </div>
-        ))}
-      </div>
-      <div id="keypad">
-        <button id="counterClockwiseBtn" onClick={handleMoveCounterClockwise}>
-          Counter clockwise
-        </button>
-        <button id="clockwiseBtn" onClick={handleMoveClockwise}>
-          Clockwise
-        </button>
-      </div>
+    <div id="wheel">
+      {Array.from({ length: 6 }, (_, i) => (
+        <div
+          key={i}
+          // Set the class to 'active' if the current cog is the active one
+          // The wheel state should correctly point to the active cog index
+          className={`cog ${i === wheel ? 'active' : ''}`}
+          style={{ "--i": i }}
+        >
+          {/* Display 'B' if the current cog is the active one */}
+          {i === wheel ? 'B' : ''}
+        </div>
+      ))}
     </div>
+    <div id="keypad">
+      <button id="counterClockwiseBtn" onClick={handleMoveCounterClockwise}>
+        Counter clockwise
+      </button>
+      <button id="clockwiseBtn" onClick={handleMoveClockwise}>
+        Clockwise
+      </button>
+    </div>
+  </div>
   );
 }
 
@@ -61,4 +61,4 @@ const mapDispatchToProps = {
 };
 
 // Connect Wheel component to Redux
-export default connect(null, mapDispatchToProps)(Wheel);
+export default connect(state=>state , mapDispatchToProps)(Wheel);

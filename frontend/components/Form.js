@@ -1,33 +1,44 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import * as actionCreators from '../state/action-creators';
 
 export function Form(props) {
-  const [formData, setFormData] = useState({
-    newQuestion: '',
-    newTrueAnswer: '',
-    newFalseAnswer: ''
-  });
+  const { formDataRedux } = props; // formDataRedux represents the form data in the Redux store
+
+  // Initialize component state with Redux state
+  const [formData, setFormData] = useState(formDataRedux);
+
+  // Update local state when Redux state changes
+  useEffect(() => {
+    setFormData(formDataRedux);
+  }, [formDataRedux]);
 
   const onChange = evt => {
     const { id, value } = evt.target;
-    setFormData({
+    const updatedFormData = {
       ...formData,
       [id]: value
-    });
+    };
+
+    setFormData(updatedFormData);
+
+    // Dispatch action to update Redux state
+    props.inputChange({ field: id, value });
   };
 
   const onSubmit = evt => {
     evt.preventDefault();
-    // Dispatch the action to add the new quiz
-    // Assuming there is an action creator like 'addQuiz' in your actionCreators
-    props.postQuiz(formData);
-    // Reset the form after submission
+    props.postQuiz(formData); // Dispatch action to add the new quiz
+
+    // Reset local form state
     setFormData({
       newQuestion: '',
       newTrueAnswer: '',
       newFalseAnswer: ''
     });
+
+    // Dispatch action to reset Redux form state
+    props.resetForm();
   };
 
   const isButtonDisabled = 
@@ -37,13 +48,17 @@ export function Form(props) {
 
   return (
     <form id="form" onSubmit={onSubmit}>
-      <h2>Create New Quiz</h2>
-      <input maxLength={50} onChange={onChange} value={formData.newQuestion} id="newQuestion" placeholder="Enter question" />
-      <input maxLength={50} onChange={onChange} value={formData.newTrueAnswer} id="newTrueAnswer" placeholder="Enter true answer" />
-      <input maxLength={50} onChange={onChange} value={formData.newFalseAnswer} id="newFalseAnswer" placeholder="Enter false answer" />
-      <button id="submitNewQuizBtn" disabled={isButtonDisabled}>Submit new quiz</button>
-    </form>
+    <h2>Create New Quiz</h2>
+    <input maxLength={50} onChange={onChange} value={formData.newQuestion} id="newQuestion" placeholder="Enter question" />
+    <input maxLength={50} onChange={onChange} value={formData.newTrueAnswer} id="newTrueAnswer" placeholder="Enter true answer" />
+    <input maxLength={50} onChange={onChange} value={formData.newFalseAnswer} id="newFalseAnswer" placeholder="Enter false answer" />
+    <button id="submitNewQuizBtn" disabled={isButtonDisabled}>Submit new quiz</button>
+  </form>
   );
 }
 
-export default connect(st => st, actionCreators)(Form);
+const mapStateToProps = state => ({
+  formDataRedux: state.form // Assuming the form data is stored in the 'form' slice of the Redux state
+});
+
+export default connect(mapStateToProps, actionCreators)(Form);

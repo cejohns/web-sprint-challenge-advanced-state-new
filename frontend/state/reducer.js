@@ -2,13 +2,18 @@
 import { combineReducers } from 'redux'
 import  * as types from  './action-types'
 
-const initialWheelState = 0
+const initialWheelState = 0;
+
 function wheel(state = initialWheelState, action) {
   switch (action.type) {
-    case 'MOVE_CLOCKWISE':
-      return state + 1;
-    case 'MOVE_COUNTERCLOCKWISE':
-      return state - 1;
+    case 'MOVE_CLOCKWISE': {
+      const nextIndex = state + 1;
+      return nextIndex > 5 ? 0 : nextIndex;
+    }
+    case 'MOVE_COUNTERCLOCKWISE': {
+      const nextIndex = state - 1;
+      return nextIndex < 0 ? 5 : nextIndex;
+    }
     default:
       return state;
   }
@@ -62,22 +67,21 @@ const initialFormState = {
   newQuestion: '',
   newTrueAnswer: '',
   newFalseAnswer: '',
-}
+};
+
 function form(state = initialFormState, action) {
   switch (action.type) {
-    case  'INPUT_CHANGE':
-      // Updates the newQuestion field in the form state
-      return { ...state, newQuestion: action.payload };
-
-
+    case 'INPUT_CHANGE':{
+      const { field, value } = action.payload; // Expecting payload to be an object with field and value
+      return { ...state, [field]: value }; // Updates the specified field
+    }
     case 'RESET_FORM':
-      // Resets the form to its initial state
-      return initialFormState;
-  
+      return initialFormState; // Resets the form to its initial state
+
     default:
-      // If the action type is not recognized, return the current state
-      return state;
+      return state; // Returns the current state for unrecognized action types
   }
 }
+
 
 export default combineReducers({ wheel, quiz, selectedAnswer, infoMessage, form })

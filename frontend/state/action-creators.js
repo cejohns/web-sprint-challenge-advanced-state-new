@@ -10,7 +10,7 @@ export function moveCounterClockwise() {
 }
 
 export function selectAnswer() { 
-  return { type: 'SET_SELECTED_ANSWER'};
+  return { type: 'SET_SELECTED_ANSWER' };
 }
 
 export function setMessage(message) {
@@ -21,8 +21,8 @@ export function setQuiz(quiz) {
   return { type: 'SET_QUIZ_INTO_STATE', payload: quiz };
 }
 
-export function inputChange() {
-  return { type: 'INPUT_CHANGE'};
+export function inputChange(payload) {
+  return { type: 'INPUT_CHANGE', payload };
  }
 
 export function resetForm() {
@@ -75,7 +75,7 @@ export const postAnswer = (quiz_id, answerId) => async (dispatch) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
       
-    });console.log('Sending payload:', payload);
+    });console.log('Sending payload:', payload.answer_id);
 
    const responseBody = await response.json();
 if (!response.ok) {
@@ -95,25 +95,33 @@ export const postQuiz = (questionText, trueAnswerText, falseAnswerText) => async
   const payload = {
     question_text: questionText,
     true_answer_text: trueAnswerText,
-    false_answer_text: falseAnswerText,
+    false_answer_text: falseAnswerText,  // Corrected the typo here
   };
   try {
-    const response = await fetch(' http://localhost:9000/api/quiz/new', {
+    const response = await fetch('http://localhost:9000/api/quiz/new', {  // Removed the leading space
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
+
     if (!response.ok) {
-      throw new Error('Network response was not ok');
+      const errorData = await response.json();
+      console.error('Post error:', errorData);
+      dispatch(setMessage(errorData.message || 'Error adding quiz'));
+      // You might want to handle different statuses differently
+      // if (response.status === 422) { ... }
+      return;
     }
+
     const data = await response.json();
-    dispatch(setMessage('Quiz added successfully!'));
-    dispatch(resetForm(data));
+    dispatch(setMessage('Quiz added successfully!', data));
+    dispatch(resetForm());  // Assuming resetForm doesn't need data as a parameter
   } catch (error) {
     console.error('Post error:', error);
-    dispatch(setMessage('Error adding quiz'));
+    dispatch(setMessage('Network error while adding quiz'));
   }
 };
+
 
 
 // ❗ On promise rejections, use log statements or breakpoints, and put an appropriate error message in state
